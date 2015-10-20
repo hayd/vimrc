@@ -69,6 +69,14 @@ nmap <leader>w :w!<cr>
 " (useful for handling the permission-denied error)
 command W w !sudo tee % > /dev/null
 
+" YCM is a bit fussy with correct python versions
+" See the mailing list RE the following error:
+" SHUT DOWN (restart with :YcmRestartServer). Stderr (last 30 line s)
+let g:ycm_path_to_python_interpreter = '/System/Library/Frameworks/Python.framework/Versions/2.7/bin/python'
+" let g:ycm_path_to_python_interpreter = '~/anaconda/bin/python'
+let g:ycm_server_log_level = 'debug'
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_autoclose_preview_window_after_insertion = 1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => VIM user interface
@@ -155,6 +163,9 @@ set foldcolumn=1
 " Enable syntax highlighting
 syntax enable 
 
+" Treat .md like .markdown
+au BufRead,BufNewFile *.md set filetype=markdown
+
 try
     colorscheme desert
 catch
@@ -183,6 +194,11 @@ nnoremap <silent> <leader>l :set nonumber!<CR>
 
 " Toggle NERDTree
 nnoremap <silent> <leader>; :NERDTreeToggle<CR>
+let NERDTreeIgnore = ['\.pyc$']
+
+" Mark the 80th and columns over 120
+highlight ColorColumn ctermbg=234 guibg=#2c2d27:
+let &colorcolumn="80,".join(range(120,999),",")
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Files, backups and undo
@@ -294,7 +310,7 @@ set laststatus=2
 
 " Format the status line
 
-set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\ \ \%{fugitive#statusline()}\ \ %{GitBranchInfoTokens()[0]}
+set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l\(%c\)\ \%{fugitive#statusline()}\ \ %{GitBranchInfoTokens()[0]}
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -324,6 +340,11 @@ func! DeleteTrailingWS()
 endfunc
 autocmd BufWrite *.py :call DeleteTrailingWS()
 autocmd BufWrite *.coffee :call DeleteTrailingWS()
+
+" Add new lines without entering INSERT mode
+nnoremap <S-CR> O<Esc>
+nnoremap ^[0M O<Esc>
+nnoremap <CR> o<Esc>
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -368,6 +389,9 @@ map <leader>sp [s
 map <leader>sa zg
 map <leader>s? z=
 
+" Pep8 checking (with pep8radius)
+map <leader>pa :!pep8radius --diff --no-color \| cdiff<cr>
+map <leader>pai :!pep8radius --diff --no-color --in-place \| cdiff<cr>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Misc
@@ -384,7 +408,8 @@ map <leader>x :e ~/buffer.md<cr>
 " Toggle paste mode on and off
 map <leader>pp :setlocal paste!<cr>
 
-map <leader>c :NERDComToggleComment
+nnoremap <leader>p oimport pdb; pdb.set_trace()<Esc>
+nnoremap <leader><S-p> Oimport pdb; pdb.set_trace()<Esc>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Helper functions
